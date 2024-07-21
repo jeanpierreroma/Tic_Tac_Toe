@@ -10,7 +10,7 @@
             : base(name, symbol) { }
 
         public ComputerDifficulty Difficulty { get; set; }
-        public override abstract void GetMove(char[][] board, Move move);
+        public override abstract void GetMove(Board board, Move move);
 
     }
 }

@@ -4,7 +4,7 @@ namespace Tic_Tac_Toe.Data.Models
 {
     public class GameRespond
     {
-        public char[][] Board { get; set; }
+        public Board Board { get; set; }
         public Player CurrentPlayer { get; set; }
         public GameState GameState { get; set; }
         public bool IsSucced { get; set; }

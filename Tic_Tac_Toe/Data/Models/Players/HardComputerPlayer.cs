@@ -15,9 +15,8 @@
         {
             return difficulty;
         }
-        public override void GetMove(char[][] board, Move move)
+        public override void GetMove(Board board, Move move)
         {
-            // Логіка отримання ходу для високої складності
             throw new NotImplementedException();
         }
     }

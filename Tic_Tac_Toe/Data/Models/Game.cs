@@ -9,7 +9,7 @@ namespace Tic_Tac_Toe.Data.Models
     [Serializable]
     public class Game : ISerializable
     {
-        public char[][] Board { get; set; }
+        public Board Board { get; set; }
         public Player Player1 { get; set; }
         public Player Player2 { get; set; }
         public Player CurrentPlayer { get; set; }
@@ -26,64 +26,29 @@ namespace Tic_Tac_Toe.Data.Models
             Player2 = player2;
             CurrentPlayer = player1;
             Status = GameState.InProgress;
-            CreateBoard(3);
-        }
-
-        private void CreateBoard(int size)
-        {
-            char initializationSymbol = ' ';
-
-            Board = new char[size][];
-            for (int i = 0; i < size; i++)
-            {
-                Board[i] = new char[size];
-                for (int j = 0; j < size; j++)
-                {
-                    Board[i][j] = initializationSymbol;
-                }
-            }
-
+            Board = new Board(3);
         }
 
         public GameRespond MakeMove(Move move)
         {
             if (Status != GameState.InProgress)
             {
-                return new GameRespond
-                {
-                    Board = Board,
-                    CurrentPlayer = CurrentPlayer,
-                    GameState = GameState.Invalid,
-                    IsSucced = false,
-                    Message = "Game is not in progress."
-                };
+                return CreateGameRespond(GameState.Invalid, false, "Game is not in progress.");
             }
 
-            if (!CurrentPlayer.Name.Equals("Computer") && Board[move.Row][move.Column] != ' ')
+            if (Board.GetCell(move.Row, move.Column) != ' ')
             {
-                return new GameRespond
-                {
-                    Board = Board,
-                    CurrentPlayer = CurrentPlayer,
-                    GameState = GameState.InProgress,
-                    IsSucced = false,
-                    Message = "Invalid move."
-                };
+                return CreateGameRespond(GameState.InProgress, false, "Invalid move.");
             }
 
             CurrentPlayer.GetMove(Board, move);
+            UpdateGameStatus(CurrentPlayer.Symbol);
 
-            if (UpdateGameStatus(CurrentPlayer.Symbol))
+            if (Status == GameState.Win || Status == GameState.Draw)
             {
-                return new GameRespond
-                {
-                    Board = Board,
-                    CurrentPlayer = CurrentPlayer,
-                    IsSucced = true,
-                    Message = Status == GameState.Win ?
-                            $"{CurrentPlayer.Name} won the game!" :
-                            "The result of the game is Draw!"
-                };
+                return CreateGameRespond(Status, true, Status == GameState.Win ?
+                    $"{CurrentPlayer.Name} won the game!" :
+                    "The result of the game is Draw!");
             }
 
             ToggleCurrentPlayer();
@@ -91,29 +56,30 @@ namespace Tic_Tac_Toe.Data.Models
             if (CurrentPlayer.Name.Equals("Computer"))
             {
                 CurrentPlayer.GetMove(Board, new Move());
+                UpdateGameStatus(CurrentPlayer.Symbol);
 
-                if (UpdateGameStatus(CurrentPlayer.Symbol))
+                if (Status == GameState.Win || Status == GameState.Draw)
                 {
-                    return new GameRespond
-                    {
-                        Board = Board,
-                        CurrentPlayer = CurrentPlayer,
-                        IsSucced = true,
-                        Message = Status == GameState.Win ? 
-                            $"{CurrentPlayer.Name} won the game!" :
-                            "The result of the game is Draw!"
-                    };
+                    return CreateGameRespond(Status, true, Status == GameState.Win ?
+                        $"{CurrentPlayer.Name} won the game!" :
+                        "The result of the game is Draw!");
                 }
 
                 ToggleCurrentPlayer();
             }
 
+            return CreateGameRespond(GameState.InProgress, true, "Game in progress");
+        }
+
+        private GameRespond CreateGameRespond(GameState gameState, bool isSucced, string message)
+        {
             return new GameRespond
             {
                 Board = Board,
                 CurrentPlayer = CurrentPlayer,
-                IsSucced = true,
-                Message = "Game in progress"
+                GameState = gameState,
+                IsSucced = isSucced,
+                Message = message
             };
         }
 
@@ -122,95 +88,16 @@ namespace Tic_Tac_Toe.Data.Models
             CurrentPlayer = CurrentPlayer.Equals(Player1) ? Player2 : Player1;
         }
 
-        private bool UpdateGameStatus(char currentSign)
+        private void UpdateGameStatus(char currentSign)
         {
-            // Check for win
-            if (CheckHorizontalLinesForWin(currentSign) ||
-                CheckVerticalLinesForWin(currentSign) ||
-                CheckDiagonalLinesForWin(currentSign))
-            {
-                Status = GameState.Win;
-                return true;
-            }
-
-            // Check for draw
-            if (Board.All(row => row.All(cell => cell != ' ')))
-            {
-                Status = GameState.Draw;
-                return true;
-            }
-
-            Status = GameState.InProgress;
-            return false;
-        }
-
-        private bool CheckHorizontalLinesForWin(char currentSign)
-        {
-            foreach (var row in Board)
-            {
-                if (row.All(cell => cell == currentSign))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private bool CheckVerticalLinesForWin(char currentSign)
-        {
-            for (int col = 0; col < Board.Length; col++)
-            {
-                bool win = true;
-                for (int row = 0; row < Board.Length; row++)
-                {
-                    if (Board[row][col] != currentSign)
-                    {
-                        win = false;
-                        break;
-                    }
-                }
-                if (win)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private bool CheckDiagonalLinesForWin(char currentSign)
-        {
-            return CheckMainDiagonalLineWin(currentSign) || CheckSideDiagonalLineWin(currentSign);
-        }
-
-        private bool CheckMainDiagonalLineWin(char currentSign)
-        {
-            for (int i = 0; i < Board.Length; i++)
-            {
-                if (Board[i][i] != currentSign)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        private bool CheckSideDiagonalLineWin(char currentSign)
-        {
-            for (int i = 0; i < Board.Length; i++)
-            {
-                if (Board[i][Board.Length - 1 - i] != currentSign)
-                {
-                    return false;
-                }
-            }
-            return true;
+            Status = Board.CheckGameBoardStatus(currentSign);
         }
 
 
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Board", Board);
+            info.AddValue("Board", Board.ToJson());
             info.AddValue("Player1", Player1.ToJson());
             info.AddValue("Player2", Player2.ToJson());
             info.AddValue("CurrentPlayer", CurrentPlayer.ToJson());
@@ -219,7 +106,8 @@ namespace Tic_Tac_Toe.Data.Models
 
         public Game(SerializationInfo info, StreamingContext context)
         {
-            Board = (char[][])info.GetValue("Board", typeof(char[][]));
+            var boardJson = (JObject)info.GetValue("Board", typeof(JObject));
+            Board = Board.FromJson(boardJson);
 
             var player1Json = (JObject)info.GetValue("Player1", typeof(JObject));
             Player1 = Player.FromJson(player1Json);

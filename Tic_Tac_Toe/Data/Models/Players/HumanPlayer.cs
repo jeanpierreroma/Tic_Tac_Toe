@@ -8,9 +8,9 @@
         }
         public HumanPlayer(string name, char symbol) : base(name, symbol) { }
 
-        public override void GetMove(char[][] board, Move move)
+        public override void GetMove(Board board, Move move)
         {
-            board[move.Row][move.Column] = this.Symbol;
+            board.PutSymbol(move.Row, move.Column, this.Symbol);
         }
     }
 }

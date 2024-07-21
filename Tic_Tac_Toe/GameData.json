@@ -1,1 +1,1 @@
-{"Board":[["X"," ","O"],["X","X","O"],[" "," ","O"]],"Player1":{"Type":"HumanPlayer","Name":"Roman","Symbol":88},"Player2":{"Type":"HumanPlayer","Name":"Oleg","Symbol":79},"CurrentPlayer":{"Type":"HumanPlayer","Name":"Oleg","Symbol":79},"GameStatus":1}
+{"Board":{"Board":[["X"," "," "],["O","X"," "],["O"," ","X"]]},"Player1":{"Type":"HumanPlayer","Name":"Roman","Symbol":88},"Player2":{"Type":"EasyComputerPlayer","Name":"Computer","Symbol":79},"CurrentPlayer":{"Type":"HumanPlayer","Name":"Roman","Symbol":88},"GameStatus":1}

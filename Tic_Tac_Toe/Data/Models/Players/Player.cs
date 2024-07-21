@@ -19,7 +19,7 @@ namespace Tic_Tac_Toe.Data.Models.Players
             Symbol = symbol;
         }
 
-        public abstract void GetMove(char[][] board, Move move);
+        public abstract void GetMove(Board board, Move move);
 
         public static Player FromJson(JObject json)
         {

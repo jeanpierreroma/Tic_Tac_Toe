@@ -16,7 +16,7 @@
             return difficulty;
         }
 
-        public override void GetMove(char[][] board, Move move)
+        public override void GetMove(Board board, Move move)
         {
             Random random = new Random();
 
@@ -24,14 +24,14 @@
             int column = 0;
             do
             {
-                int randValue = random.Next(board.Length * board.Length - 1);
+                int randValue = random.Next(board.GameBoard.Length * board.GameBoard.Length - 1);
 
-                row = randValue / board.Length;
-                column = randValue % board.Length;
+                row = randValue / board.GameBoard.Length;
+                column = randValue % board.GameBoard.Length;
 
-            } while (board[row][column] != ' ');
+            } while (board.GetCell(row, column) != ' ');
 
-            board[row][column] = this.Symbol;
+            board.PutSymbol(row, column, this.Symbol);
         }
     }
 }
