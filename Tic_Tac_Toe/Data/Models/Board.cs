@@ -105,7 +105,7 @@ namespace Tic_Tac_Toe.Data.Models
                 rowArray.Select(cell => (char)((string)cell)[0]).ToArray()
             ).ToArray();
 
-            var size = board.Length; // Припускаємо, що Board квадратний
+            var size = board.Length;
             var boardObject = new Board(size);
             boardObject.GameBoard = board;
             return boardObject;
